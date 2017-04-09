@@ -122,9 +122,9 @@ GitHubActivity.feed({
 <div id="chatheader">
 </div>
 	<div id="chat">
-            <div class="console well" style ="overflow:scroll; height:80%">
+            <div class="console well" style ="overflow:scroll; height:95%">
             </div>
-            <form class="well form-inline" onsubmit="return false;">
+            <form class="well form-inline" onsubmit="return false;" style="height:5%; overflow:auto">
                <input class="msg input-xlarge" type="text" placeholder="Type something..."/>
                <button type="button" onClick="sendMessage()" class="btn" id="send">Send</button>
                <button type="button" onClick="sendDisconnect()" class="btn">Disconnect</button>
@@ -136,7 +136,7 @@ GitHubActivity.feed({
 
 <div id="rightpanel">
 	<div id="rightpanelgit">
-		<div id="feed"></div>
+		<div id="feed" style="height:100%;"></div>
 	</div>
 </div>
 
