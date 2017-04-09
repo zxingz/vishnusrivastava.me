@@ -1,7 +1,9 @@
 package vishnusrivastava.me.server;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -42,8 +44,6 @@ public class pageHandler implements HttpHandler  {
 	public void handle(HttpExchange req) throws IOException {
 		
 		
-		byte [] response = "Nothing here ...".getBytes();
-		
 		if ("fbhook".equals(page)){
 			String query = req.getRequestURI().getQuery();
 			HashMap <String, String> data = new HashMap<String, String>();
@@ -55,7 +55,11 @@ public class pageHandler implements HttpHandler  {
 		    		  data.put(vals[i].split("=")[0], vals[i].split("=")[1]);	 
 		    	  }
 		    	  if (data.containsKey("hub.verify_token") && data.get("hub.verify_token").equals("hello_ji")){
-		    		  response = data.get("hub.challenge").getBytes();
+		    		  file = new File(System.getProperty("user.dir")+"\\resources\\challenge.txt");
+		    		  file.setWritable(true);
+		    		  BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+		    		  writer.write(data.get("hub.challenge"));
+		    		  writer.close();
 		    		  System.out.println("verified !");
 		    		  }
 		    	  }
