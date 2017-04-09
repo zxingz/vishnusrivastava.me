@@ -1,19 +1,25 @@
 package vishnusrivastava.me.server;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 
+import com.corundumstudio.socketio.SocketIONamespace;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class pageHandler implements HttpHandler  {
 	
 	public String page = "/";	
-	pageHandler(String page){
+	public SocketIONamespace chatnamespace;
+	File file = new File(System.getProperty("user.dir")+"\\resources\\default.html");
+	pageHandler(String page, SocketIONamespace chatnamespace){
 		this.page = page;
+		this.chatnamespace = chatnamespace;
 	}
 	
 	// get message from me
@@ -54,24 +60,46 @@ public class pageHandler implements HttpHandler  {
 		    		  }
 		    	  }
 		      else{
-		    	  try {
-					sendMessageVishnu.send(getMyMessage(req));
+		    	  try {		    		 
+		    		  String mymessage = getMyMessage(req);
+		    		System.out.println(mymessage);
+		    		 ChatObject user_message = new ChatObject();
+		    		 user_message.setMessage(mymessage);
+		    		 user_message.setUserName("Vishnu");
+		    		 System.out.println(this.chatnamespace);
+		    		 if (this.chatnamespace != null){
+		    			chatnamespace.getBroadcastOperations().sendEvent("message", user_message);
+		    		 }
+					//sendMessageVishnu.send(getMyMessage(req));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 		    	  }
+		      req.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
 		      }
 		
 		else if ("resources".equals(page)){
-			String[] demand = req.getRequestURI().getQuery().split("=");
-			if ("img".equals(demand)){
-				
+			if (req.getRequestURI().getQuery() == null){
+				req.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
 			}
-			response = req.getRequestURI().getQuery().getBytes();
+			else{
+				String[] demand = req.getRequestURI().getQuery().split("=");
+				if ("img".equals(demand[0])){
+					file = new File(System.getProperty("user.dir")+"\\resources\\"+demand[1]);
+				}
+				else if ("css".equals(demand[0])){
+					System.out.println(System.getProperty("user.dir")+"\\resources\\css\\"+demand[1]);
+					file = new File(System.getProperty("user.dir")+"\\resources\\css\\"+demand[1]);
+				}
+			}			
 		}
-		req.sendResponseHeaders(200, response.length);
+		else if ("main".equals(page)){
+			req.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+			file = new File(System.getProperty("user.dir")+"\\resources\\index.html");
+		}
+		req.sendResponseHeaders(200, file.length());
 		OutputStream os = req.getResponseBody();
-		os.write(response);
+		Files.copy(file.toPath(), os);
 		os.close();
 	}
 

@@ -4,12 +4,104 @@
 <head>
 <meta content="en-ca" http-equiv="Content-Language" />
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+
+<link rel="stylesheet" type="text/css" href="https://bf7ece6f.ngrok.io/resources?css=styles.css">
 <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+<link rel="stylesheet" href="https://bf7ece6f.ngrok.io/resources?css=octicons.min.css">
+<link rel="stylesheet" href="https://bf7ece6f.ngrok.io/resources?css=github-activity-0.1.4.min.css">
+<script type="text/javascript" src="https://bf7ece6f.ngrok.io/resources?css=mustache.min.js"></script>
+<script type="text/javascript" src="https://bf7ece6f.ngrok.io/resources?css=github-activity-0.1.4.min.js"></script>
+
+
+<link href="https://bf7ece6f.ngrok.io/resources?css=bootstrap.css" rel="stylesheet">
+<script src="https://bf7ece6f.ngrok.io/resources?css=socket.io.js"></script>
+<script src="https://bf7ece6f.ngrok.io/resources?css=moment.min.js"></script>
+<script src="https://bf7ece6f.ngrok.io/resources?css=jquery-1.10.1.min.js"></script>
+
+<script>
+
+	var userName = 'user2_' + Math.floor((Math.random()*1000)+1);
+	var chatSocket =  io.connect('https://9fdaaf4d.ngrok.io/chat2');
+
+	function connectHandler(parentId) {
+		return function() {
+			output('<span class="connect-msg">Client has connected to the server!</span>', parentId);
+			}
+		}
+
+                function messageHandler(parentId) {
+                        return function(data) {
+			     output('<span class="username-msg">' + data.userName + ':</span> ' + data.message, parentId);
+		        }
+                }
+
+                function disconnectHandler(parentId) {
+                        return function() {
+			     output('<span class="disconnect-msg">The client has disconnected!</span>', parentId);
+                        }
+                }
+
+		function sendMessageHandler(parentId, userName, chatSocket) {
+                        var message = $(parentId + ' .msg').val();
+                        $(parentId + ' .msg').val('');
+
+                        var jsonObject = {'@class': 'com.corundumstudio.socketio.demo.ChatObject',
+                                          userName: userName,
+                                          message: message};
+                        chatSocket.json.send(jsonObject);
+		}
+
+
+
+                chatSocket.on('connect', connectHandler('#chat'));
+
+
+                chatSocket.on('message', messageHandler('#chat'));
+
+
+                chatSocket.on('disconnect', disconnectHandler('#chat'));
+
+ 
+                function sendDisconnect() {
+                        chatSocket.disconnect();
+                }
+
+
+		function sendMessage() {
+                        sendMessageHandler('#chat', userName, chatSocket);
+		}
+
+
+		function output(message, parentId) {
+                        //var currentTime = "<span class='time'>" +  moment().format('HH:mm:ss.SSS') + "</span>";
+                        var currentTime = "";
+                        var element = $("<div>" + currentTime + "" + message + "</div>");
+			$(parentId + ' .console').prepend(element);
+		}
+
+        $(document).keydown(function(e){
+            if(e.keyCode == 13) {
+                $('#send').click();
+            }
+        });
+	</script>
+	
+	<script type="text/javascript">
+GitHubActivity.feed({
+	username: "zxingz",
+	selector: "#feed",
+	limit: 7 // optional
+});
+</script>
+
+
+
+
 <title>Welcome</title>
 </head>
-
 <body>
+
+
 <div id="main">
 
 <div id="leftpanel">
@@ -22,23 +114,29 @@
 				Resume
 		</font>
 		<br>
-		<img src="resume.jpg" alt="" width="50%">
+		<img src="https://bf7ece6f.ngrok.io/resources?img=resume.jpg" alt="" width="50%">
 		</a>
 	</div>
 </div>
 <div id="centerpanel">
 <div id="chatheader">
 </div>
-<div id="chatbody">
-	<p class="triangle-obtuse left">hi </p>
-	<p class="triangle-obtuse right">yo </p>
-	<p class="triangle-obtuse right">yo </p>
-</div>
+	<div id="chat">
+            <div class="console well" style ="overflow:scroll; height:80%">
+            </div>
+            <form class="well form-inline" onsubmit="return false;">
+               <input class="msg input-xlarge" type="text" placeholder="Type something..."/>
+               <button type="button" onClick="sendMessage()" class="btn" id="send">Send</button>
+               <button type="button" onClick="sendDisconnect()" class="btn">Disconnect</button>
+            </form>	
+            </div>
+            
+
 </div>
 
 <div id="rightpanel">
 	<div id="rightpanelgit">
-		<iframe allowtransparency="true" frameborder="0" scrolling="no" seamless="seamless" src="http://colmdoyle.github.io/gh-activity/gh-activity.html?user=zxingz&type=user" width="70%" height="100%"></iframe>
+		<div id="feed"></div>
 	</div>
 </div>
 
